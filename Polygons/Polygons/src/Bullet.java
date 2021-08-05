@@ -7,10 +7,8 @@ public class Bullet {
 //    }
     Bullet(double damage, Vec2d pos, Vec2d speed) {
         this.damage = damage;
-        this.pos.setX(pos.getX());
-        this.pos.setY(pos.getY());
-        this.speed.setX(pos.getX());
-        this.speed.setY(pos.getY());
+        this.pos = pos;
+        this.speed = speed;
     }
 
     void move(){
