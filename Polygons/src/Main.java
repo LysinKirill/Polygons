@@ -26,8 +26,6 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
     //static int X = 0;
     //static int Y = 0;
     static boolean[] pressedKeys = new boolean[128];
-    static boolean q_pressed = false;
-    static boolean e_pressed = false;
     static int x1 = 0;
     static int x2 = 0;
     static  int y1 = 0;
@@ -110,13 +108,13 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
                 }else{player.speed.setX(player.speed.getX() + player.acceleration);}
             }else{player.decelerate(player.decelerationRate, 1, 1);}
 
-            if(q_pressed){ // q pressed
+            if(pressedKeys[81]){ // q pressed
                 if(player.angular_velocity - player.angularAcceleration < -player.maxAngularVelocity){
                     player.angular_velocity = -player.maxAngularVelocity;
                 }else{player.angular_velocity -= player.angularAcceleration;}
             }else{player.decelerate(1, 1, player.decelerationRate);}
 
-            if(e_pressed){ // e pressed
+            if(pressedKeys[69]){ // e pressed
                 if(player.angular_velocity + player.angularAcceleration > player.maxAngularVelocity){
                     player.angular_velocity = player.maxAngularVelocity;
                 }else{player.angular_velocity += player.angularAcceleration;}
@@ -260,16 +258,8 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() <= 128) {
-            pressedKeys[e.getKeyCode()] = true;
-        }
+        pressedKeys[e.getKeyCode()] = true;
 
-        if(e.getKeyCode() == KeyEvent.VK_Q){
-            q_pressed = true;
-        }
-        if(e.getKeyCode() == KeyEvent.VK_E){
-            e_pressed = true;
-        }
 
         //System.out.print(e.getKeyCode());
         /*player.angular_velocity = 0;
@@ -300,15 +290,8 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if(e.getKeyCode() <= 128) {
             pressedKeys[e.getKeyCode()] = false;
-        }
-        if(e.getKeyCode() == KeyEvent.VK_Q){
-            q_pressed = false;
-        }
-        if(e.getKeyCode() == KeyEvent.VK_E){
-            e_pressed = false;
-        }
+
 
 
         //System.out.println("Space = " + Integer.toString(KeyEvent.VK_SPACE));
