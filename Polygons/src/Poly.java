@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Poly {
-    Vec2d pos;   //Position of the center point
+    Vec2d pos;   //Position of the center point  среднее арифметическое сделать
     double[] arrX;
     double[] arrY;
     int n;
@@ -230,8 +230,6 @@ public class Poly {
             arrX[i] += x;
             arrY[i] += y;
         }
-        //Main.printArr(arrX);
-        //update();
     }
 
     void move(){
@@ -241,8 +239,6 @@ public class Poly {
             arrX[i] += this.speed.getX();
             arrY[i] += this.speed.getY();
         }
-        //Main.printArr(arrX);
-        //update();
     }
 
 
@@ -260,7 +256,6 @@ public class Poly {
             double len = new Vec2d(arrX[i] - pos.getX(), arrY[i] - pos.getY()).length();
             arrX[i] = pos.getX() + (len * Math.cos(aux_angle));
             arrY[i] = pos.getY() + (len * Math.sin(aux_angle));
-
         }
         this.angle += angle;
         //update();
@@ -272,7 +267,6 @@ public class Poly {
 
     void setAngle(double new_angle){
         rotate(new_angle - angle);
-
     }
     void scale(double sc){
         for(int i = 0; i < arrX.length; i++){

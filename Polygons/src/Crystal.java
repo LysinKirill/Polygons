@@ -1,6 +1,7 @@
 import java.awt.*;
 
 public class Crystal extends Poly{
+    double energy;
     Color color;
     Rectangle collider;
     int timer = 0;

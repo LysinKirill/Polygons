@@ -41,11 +41,6 @@ public class Vec2d {
     }
 
     static double getCos(Vec2d vec1, Vec2d vec2){
-        //double a = vec1.length();
-        //double b = vec2.length();
-        //double c = new Vec2d(vec2.getX() - vec1.getX(), vec2.getY() - vec1.getY()).length();
-        //return ((a*a + b*b - c*c)/(2*a*b));
-
         return ((vec1.x*vec2.x + vec1.y*vec2.y)/(Math.sqrt(vec1.x * vec1.x + vec1.y * vec1.y) * Math.sqrt(vec2.x * vec2.x + vec2.y * vec2.y)));
     }
 

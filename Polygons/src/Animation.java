@@ -1,19 +1,23 @@
 import java.awt.*;
 
 public class Animation {
-    int timer;
+    int interval;
+    double timer;
     int step;
-    int duration;//automatically converted to milliseconds
+    int duration;
     boolean repeating;
     Polygon shape;
 
 
     //Constructors
-    Animation(Polygon shape){
+    Animation(Polygon shape){ //simple shaking animation
         timer = 0;
         step = 0;
-        duration = 60 * 2; //  10 second animation
+        duration = 1000 ; //  1 second animation
         this.shape = shape;
+        while(timer < duration){
+            timer += 1000/60f;
 
+        }
     }
 }
