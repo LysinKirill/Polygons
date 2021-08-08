@@ -12,7 +12,7 @@ public class Poly {
     Vec2d leftBottom;
     Vec2d speed;
     double angular_velocity;
-    
+
     Poly(){
         this(new Vec2d(500 + Math.random() * 1000, 250 + Math.random() * 750), 200, 200, new Vec2d(Math.random() * 7 - 3.5, Math.random() * 7 - 3.5), Math.random() * 0.02 - 0.01,20);
     }
@@ -120,6 +120,7 @@ public class Poly {
         this.n = vertexes.size();
         this.pos = new Vec2d(position.getX(), position.getY());
         this.angle = 0;
+        //this.center = center;
     }
 
     Poly(Vec2d position, double r, Vec2d speed, double angular_velocity, int maxVertexes){ //Конструктор round

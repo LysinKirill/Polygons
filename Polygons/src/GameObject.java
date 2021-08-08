@@ -14,7 +14,7 @@ public class GameObject{
 
 
     GameObject(String path, Vec2d position, double scaleFactor){
-        this.position = position;
+        this.position = new Vec2d(50,50);
         this.texture = null;
         this.collider = null;
         try{

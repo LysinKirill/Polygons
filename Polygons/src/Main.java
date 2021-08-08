@@ -18,16 +18,25 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
     static int width = (int)(dimension.width);
     static int height = (int)(dimension.height*0.98);
 
-    public static String path = new File("").getAbsolutePath() + "\\src\\img\\";
+
+    public static String path = new File("").getAbsolutePath() + "/src/img/";
     static int crystalCounter = 0;
     //static JTextField crystalCounterArea = new JTextField();
     //static  Poly poly = new Poly(10, 70, 10, 70);
     //static  Poly poly = new Poly();
     //static  Crystal crystal = new Crystal();
-    static ArrayList<Crystal> crystals = new ArrayList<>();
+    static ArrayList<Bot> bots = new ArrayList<>();
     static ArrayList<GameObject> gameObjects = new ArrayList<>();
+    static ArrayList<Food> food = new ArrayList<>();
+    static ArrayList<Bullet> bullets = new ArrayList<>();
+    static Player player = new Player();
+    //static ArrayList<Bot> bots = new ArrayList<>();
     //static int X = 0;
     //static int Y = 0;
+
+    static boolean[] pressedKeys = new boolean[1024];
+//    static boolean q_pressed = false;
+//    static boolean e_pressed = false;
 
     static int x1 = 0;
     static int x2 = 0;
@@ -88,7 +97,7 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
                 //frame.getContentPane().add()
                 frame.getContentPane().add(simulation);
-                frame.getContentPane().addKeyListener(simulation);
+                frame.addKeyListener(simulation);
                 frame.getContentPane().addComponentListener(simulation);
                 frame.getContentPane().addMouseListener(simulation);
 
@@ -98,7 +107,57 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
 
         while(true){    //    game cycle
-            if(Math.random() + 0.0007 * crystals.size() < 0.01){    // максимум 15 кристаллов. Вероятность спавна нового кристалла падает при спауне очередного кристалла
+            for (int i = 0;i < bots.size();i++){
+                if(bots.get(i).energy <= 0) {
+                    bots.remove(i);
+                }
+            }
+            if(player.energy <= 0) {
+                System.out.println("Лох");
+            }
+            if(pressedKeys[32]){ // space pressed
+                if(player.shooting_timer == 0){
+                    for(int i = 0;i<player.shooting_vertexes.size();i++){
+                        bullets.add(player.shoot(i));
+                    }
+                }
+            }
+            if(pressedKeys[87]){ // w pressed
+                if(player.speed.getY() - player.acceleration < -player.maxSpeed){
+                    player.speed.setY(-player.maxSpeed);
+                }else{player.speed.setY(player.speed.getY() - player.acceleration);}
+            }else{player.decelerate(1, player.decelerationRate, 1);}
+
+            if(pressedKeys[83]){ // s pressed
+                if(player.speed.getY() + player.acceleration > player.maxSpeed){
+                    player.speed.setY(player.maxSpeed);
+                }else{player.speed.setY(player.speed.getY() + player.acceleration);}
+            }else{player.decelerate(1, player.decelerationRate, 1);}
+
+            if(pressedKeys[65]){ // a pressed
+                if(player.speed.getX() - player.acceleration < -player.maxSpeed){
+                    player.speed.setX(-player.maxSpeed);
+                }else{player.speed.setX(player.speed.getX() - player.acceleration);}
+            }else{player.decelerate(player.decelerationRate, 1, 1);}
+
+            if(pressedKeys[68]){ // d pressed
+                if(player.speed.getX() + player.acceleration > player.maxSpeed){
+                    player.speed.setX(player.maxSpeed);
+                }else{player.speed.setX(player.speed.getX() + player.acceleration);}
+            }else{player.decelerate(player.decelerationRate, 1, 1);}
+
+            if(pressedKeys[81]){ // q pressed
+                if(player.angular_velocity - player.angularAcceleration < -player.maxAngularVelocity){
+                    player.angular_velocity = -player.maxAngularVelocity;
+                }else{player.angular_velocity -= player.angularAcceleration;}
+            }else{player.decelerate(1, 1, player.decelerationRate);}
+
+            if(pressedKeys[69]){ // e pressed
+                if(player.angular_velocity + player.angularAcceleration > player.maxAngularVelocity){
+                    player.angular_velocity = player.maxAngularVelocity;
+                }else{player.angular_velocity += player.angularAcceleration;}
+            }else{player.decelerate(1, 1, player.decelerationRate);}
+            if(Math.random() + 0.0007 * bots.size() < 0.01){    // максимум 15 кристаллов. Вероятность спавна нового кристалла падает при спауне очередного кристалла
                 double posX, posY;
                 posX = Math.random()*(width*0.3) - width*0.15;
                 if(posX > -width*0.02){posX += (1.06 * width);}
@@ -106,22 +165,64 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
                 Vec2d speed = new Vec2d(((((Math.random() * width * 1.4 - 0.7 * width) + width)/2f - posX)/(width*0.5)* (16/9f)), (((Math.random() * height * 1.4 - 0.7*height) + height)/2f - posY)/(height*0.5));
                 //if(posY > -height*0.05){posY += (1.1 * height);}
 
-                //crystals.add(new Crystal(new Vec2d(posX, posY), 100, new Vec2d(((width/2f - posX)/(width*0.5)* (16/9f) + Math.random() * 1.6 - 0.8), (height/2f - posY)/(height*0.5) + Math.random() * 1.6 - 0.8), Math.random()*0.02 - 0.01, 20, new Color(7 + (int)(Math.random() * 30),160 + (int)(Math.random() * 95),180 + (int)(Math.random() * 40),50 + (int)(Math.random()*40))));
-                crystals.add(new Crystal(new Vec2d(posX, posY), 100, speed, Math.random()*0.02 - 0.01, 20, new Color(7 + (int)(Math.random() * 30),160 + (int)(Math.random() * 95),180 + (int)(Math.random() * 40),50 + (int)(Math.random()*40))));
-
-                //System.out.println("New crystal");
+                //bots.add(new Bot(new Vec2d(posX, posY), 100, speed, Math.random()*0.02 - 0.01, 20, new Color(7 + (int)(Math.random() * 30),160 + (int)(Math.random() * 95),180 + (int)(Math.random() * 40),50 + (int)(Math.random()*40))));
+                food.add(new Food(1, new Vec2d(Math.random()*width, Math.random()*height)));
+                //bots.add(new Bot(new Vec2d(Math.random()*1500, Math.random()*1000), (int)Math.random()*50, new Vec2d(Math.random()*2, Math.random()*2), Math.random()*0.5, 20, Color.BLUE));
+                bots.add(new Bot());
             }
-            for(int i = 0; i < crystals.size(); i++){
-                //System.out.println("Crystal #" + i + ":   "+ crystals.get(i).pos + "   speed = " + crystals.get(i).speed);
-                crystals.get(i).move();
-                crystals.get(i).rotate();
-                crystals.get(i).update();
-                if(crystals.get(i).isOutOfBounds()){crystals.get(i).timer++;}else{crystals.get(i).timer = 0;}
-                if((crystals.get(i).timer / 60) > 5){
-                    crystals.remove(i);
-                    //System.out.println("removed " + i +"  crystal");
+//            for(int i = 0; i < bots.size(); i++){
+//                //System.out.println("Crystal #" + i + ":   "+ crystals.get(i).pos + "   speed = " + crystals.get(i).speed);
+//                bots.get(i).move();
+//                bots.get(i).rotate();
+//                bots.get(i).update();
+//                if(bots.get(i).isOutOfBounds()){bots.get(i).timer++;}else{bots.get(i).timer = 0;}
+//                if((bots.get(i).timer / 60) > 5){
+//                    bots.remove(i);
+//                    //System.out.println("removed " + i +"  crystal");
+//                }
+//            }
+            //collisions with food
+            for (int i = 0;i<food.size(); i++){
+                if(Math.sqrt(Math.pow(player.pos.getX()-food.get(i).pos.getX(),2)+Math.pow(player.pos.getY()-food.get(i).pos.getY(),2)) <= food.get(i).energy*15){
+                    player.energy += food.get(i).energy;
+                    food.remove(i);
                 }
             }
+            //collisions of bots with bullets
+            for (int i = 0;i<bots.size();i++){
+                for (int j = 0;j<bullets.size();j++) {
+                    if (Math.sqrt(Math.pow(bots.get(i).pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(bots.get(i).pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
+                        bots.get(i).energy -= bullets.get(j).damage;
+                        bullets.remove(j);
+                    }
+                }
+            }
+            //collisions of player with bullets
+            for (int j = 0;j<bullets.size();j++) {
+                if (Math.sqrt(Math.pow(player.pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(player.pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
+                    bots.get(j).energy -= bullets.get(j).damage;
+                    bullets.remove(j);
+                }
+            }
+            //bot AI
+            for (int i = 0;i < bots.size();i++){
+                bots.get(i).ai(player, food.get((int)(Math.random()*food.size())));
+                //bots.get(i).move();
+                bots.get(i).update();
+            }
+            //bullets moving
+            for (int i = 0;i<bullets.size();i++){
+                bullets.get(i).move();
+                bullets.get(i).update();
+//                System.out.println(bullets.get(i).pos.getY());
+//                System.out.println(bullets.get(i).pos.getX());
+
+            }
+            //player moving
+            player.move();
+            player.rotate();
+            player.update();
+            System.out.println(player.shooting_timer);
             try{
                 TimeUnit.MILLISECONDS.sleep(16);}catch(InterruptedException e){
                 e.getStackTrace();
@@ -134,12 +235,24 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
         paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
         Color oldColor = g2d.getColor();
-        for(int i = 0; i < crystals.size(); i++){
-            g2d.setColor(crystals.get(i).color);
-            g2d.fill(crystals.get(i).shape);
-            g2d.setColor(Color.BLACK);
+        for(int i = 0; i < bots.size(); i++){
+            g2d.setColor(Color.BLUE);
+            //g2d.setColor(bots.get(i).color);
+            g2d.fill(bots.get(i).shape);
             //g2d.drawString(Integer.toString(i), (int)crystals.get(i).pos.getX(), (int)crystals.get(i).pos.getY());
         }
+        for(int i = 0; i < food.size(); i++){
+            g2d.setColor(Color.YELLOW);
+            g2d.fill(food.get(i).shape);
+            g2d.setColor(Color.BLACK);
+            g2d.draw(food.get(i).shape);
+        }
+        for(int i = 0; i < bullets.size(); i++){
+            g2d.setColor(Color.BLACK);
+            g2d.fill(bullets.get(i).shape);
+        }
+        g2d.setColor(Color.RED);
+        g2d.fill(player.shape);
         g2d.drawLine(x1, y1, x2, y2);
 
         //g2d.drawOval(X - 5, Y - 5, 10 , 10);
@@ -196,13 +309,13 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
     }
 
     @Override
-    public void keyPressed(KeyEvent keyEvent) {
-
+    public void keyPressed(KeyEvent e) {
+        pressedKeys[e.getKeyCode()] = true;
     }
 
     @Override
-    public void keyReleased(KeyEvent keyEvent) {
-
+    public void keyReleased(KeyEvent e) {
+        pressedKeys[e.getKeyCode()] = false;
     }
 
     @Override
@@ -351,16 +464,16 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
     }
 
     public static int getSelectedCrystal(Vec2d position){
-        for(int i = 0; i < crystals.size(); i++){
+        for(int i = 0; i < bots.size(); i++){
             int intersections = 0;
-            for(int j = 1; j < crystals.get(i).arrX.length; j++){
+            for(int j = 1; j < bots.get(i).arrX.length; j++){
 
-                if(Main.intersects(position, new Vec2d(position.getX() + 10000, position.getY()), new Vec2d(crystals.get(i).arrX[j - 1], crystals.get(i).arrY[j - 1]), new Vec2d(crystals.get(i).arrX[j], crystals.get(i).arrY[j]))){
+                if(Main.intersects(position, new Vec2d(position.getX() + 10000, position.getY()), new Vec2d(bots.get(i).arrX[j - 1], bots.get(i).arrY[j - 1]), new Vec2d(bots.get(i).arrX[j], bots.get(i).arrY[j]))){
                     intersections++;
                     //System.out.println("intersection with " + (j - 1) + " - " + j + "      (" + intersections +")     " + i + " crystal");
                 }
             }
-            if(Main.intersects(position, new Vec2d(position.getX() + 10000, position.getY()), new Vec2d(crystals.get(i).arrX[crystals.get(i).arrX.length - 1], crystals.get(i).arrY[crystals.get(i).arrX.length - 1]), new Vec2d(crystals.get(i).arrX[0], crystals.get(i).arrY[0]))){
+            if(Main.intersects(position, new Vec2d(position.getX() + 10000, position.getY()), new Vec2d(bots.get(i).arrX[bots.get(i).arrX.length - 1], bots.get(i).arrY[bots.get(i).arrX.length - 1]), new Vec2d(bots.get(i).arrX[0], bots.get(i).arrY[0]))){
                 intersections++;
                 //System.out.println("intersection with " + (crystals.get(i).arrX.length) + " - " + 0 + "      (" + intersections +")     " + i + " crystal");
             }
