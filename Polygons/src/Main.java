@@ -62,8 +62,12 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
 
     public static void main(String[] args){
-        gameObjects.add(new GameObject(path + "crystal.png", new Vec2d(width * 0.05, height * 0.02), 0.07));
-        gameObjects.get(0).annotation = Integer.toString(crystalCounter);
+//        gameObjects.add(new GameObject(path + "crystal.png", new Vec2d(width * 0.05, height * 0.02), 0.07));
+//        gameObjects.get(0).annotation = Integer.toString(crystalCounter);
+//        gameObjects.get(0).annotationPos = new Vec2d(-width * 0.025, height * 0.03);
+
+        gameObjects.add(new GameObject(path + "energy.png", new Vec2d(width * 0.15, height * 0.02), 0.13));
+        gameObjects.get(0).annotation = Integer.toString((int)Math.round(player.energy));
         gameObjects.get(0).annotationPos = new Vec2d(-width * 0.025, height * 0.03);
         //crystals.add(new Crystal());
 
@@ -107,6 +111,7 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
 
         while(true){    //    game cycle
+            gameObjects.get(0).annotation = Integer.toString((int)Math.round(player.energy));
             for (int i = 0;i < bots.size();i++){
                 if(bots.get(i).energy <= 0) {
                     bots.remove(i);
@@ -116,7 +121,7 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
                 System.out.println("Лох");
             }
             if(pressedKeys[32]){ // space pressed
-                if(player.shooting_timer == 0){
+                if(player.shooting_timer <= 0){
                     for(int i = 0;i<player.shooting_vertexes.size();i++){
                         bullets.add(player.shoot(i));
                     }
@@ -182,8 +187,8 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 //                }
 //            }
             //collisions with food
-            for (int i = 0;i<food.size(); i++){
-                if(Math.sqrt(Math.pow(player.pos.getX()-food.get(i).pos.getX(),2)+Math.pow(player.pos.getY()-food.get(i).pos.getY(),2)) <= food.get(i).energy*15){
+            for (int i = 0; i < food.size(); i++){
+                if((food.get(i).shape.getBounds2D().intersects(player.shape.getBounds2D())) && (Main.inBounds(player.arrX, player.arrY, food.get(i).pos))){
                     player.energy += food.get(i).energy;
                     food.remove(i);
                 }
@@ -200,7 +205,7 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
             //collisions of player with bullets
             for (int j = 0;j<bullets.size();j++) {
                 if (Math.sqrt(Math.pow(player.pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(player.pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
-                    bots.get(j).energy -= bullets.get(j).damage;
+                    player.energy -= bullets.get(j).damage;
                     bullets.remove(j);
                 }
             }
@@ -222,7 +227,6 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
             player.move();
             player.rotate();
             player.update();
-            System.out.println(player.shooting_timer);
             try{
                 TimeUnit.MILLISECONDS.sleep(16);}catch(InterruptedException e){
                 e.getStackTrace();
@@ -484,5 +488,16 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
         return -1;
 
     }
+    public static boolean inBounds(double[] arrX, double[] arrY, Vec2d pos){
+        int intersections = 0;
+        for(int i = 1; i < arrX.length; i++){
+            if(Main.intersects(pos, new Vec2d(pos.getX() + 10000, pos.getY()), new Vec2d(arrX[i - 1], arrY[i - 1]), new Vec2d(arrX[i], arrY[i]))){
+                intersections++;
+            }
+        }
+        if(Main.intersects(pos, new Vec2d(pos.getX() + 10000, pos.getY()), new Vec2d(arrX[arrX.length - 1], arrY[arrX.length - 1]), new Vec2d(arrX[0], arrY[0]))){
+            intersections++;
+        }
+        return (intersections % 2 == 1);
+    }
 }
-
