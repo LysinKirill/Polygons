@@ -90,5 +90,17 @@ public class Vec2d {
         //System.out.println(3535);
         return((vec2.x == vec1.x) & (vec1.y == vec1.y));
     }
+
+
+
+
+    public Vec2d toUnitVector(){
+        return this.mult(1/this.length());
+    }
+    public static Vec2d bisector(Vec2d vec1, Vec2d vec2){
+        Vec2d t1 = vec1.toUnitVector();
+        Vec2d t2 = vec2.toUnitVector();
+        return new Vec2d((t1.getX() + t2.getX())/2f, (t1.getY() + t2.getY())/2f).toUnitVector();
+    }
 }
 

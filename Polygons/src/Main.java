@@ -25,7 +25,7 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
     static ArrayList<Bullet> bullets = new ArrayList<>();
     //static int X = 0;
     //static int Y = 0;
-    static boolean[] pressedKeys = new boolean[128];
+    static boolean[] pressedKeys = new boolean[1024];
     static int x1 = 0;
     static int x2 = 0;
     static  int y1 = 0;
@@ -34,8 +34,8 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
     //static Vec2d[] arr = Main.getRandArrCircle(13000, 500, 500, 160);
 
-    @Override
-    protected void paintComponent(Graphics g) {
+    //@Override
+    protected void paintComponent(Graphics2D g) {
         for(int i = 0; i < gameObjects.size(); i++){
             try{
                 g.setFont(new Font("Serif", Font.BOLD, 25));
@@ -54,7 +54,9 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
         gameObjects.add(new GameObject(path + "crystal.png", new Vec2d(width * 0.05, height * 0.02), 0.07));
         gameObjects.get(0).annotation = Integer.toString(crystalCounter);
         gameObjects.get(0).annotationPos = new Vec2d(-width * 0.025, height * 0.03);
-
+        gameObjects.add(new GameObject(path + "energy.png", new Vec2d(width * 0.15, height * 0.02), 0.13));
+        gameObjects.get(1).annotation = Integer.toString((int)Math.round(player.energy));
+        gameObjects.get(1).annotationPos = new Vec2d(-width * 0.025, height * 0.03);
 
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -82,8 +84,10 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
         });
 
 
-
         while(true){    //    game cycle
+            gameObjects.get(1).annotation = Integer.toString((int)Math.round(player.energy));
+
+
             if(pressedKeys[87]){ // w pressed
                 if(player.speed.getY() - player.acceleration < -player.maxSpeed){
                     player.speed.setY(-player.maxSpeed);
@@ -120,6 +124,15 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
                 }else{player.angular_velocity += player.angularAcceleration;}
             }else{player.decelerate(1, 1, player.decelerationRate);}
 
+            if(pressedKeys[32]){ // space pressed
+                if(player.shooting_timer <= 0){
+                    for(int i = 0; i < player.shooting_vertexes.size(); i++){
+                        bullets.add(player.shoot(i));
+                    }
+                }
+            }
+
+
 
             if(Math.random() + 0.0007 * bots.size() < 0.01){    // максимум 15 кристаллов. Вероятность спавна нового кристалла падает при спауне очередного кристалла
                 double posX, posY;
@@ -151,14 +164,16 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
 
             //collisions with food
-            for (int i = 0;i<food.size(); i++){
-                if(Math.sqrt(Math.pow(player.pos.getX()-food.get(i).pos.getX(),2)+Math.pow(player.pos.getY()-food.get(i).pos.getY(),2)) <= food.get(i).energy*15){
+
+
+            for (int i = 0; i < food.size(); i++){
+                if((food.get(i).shape.getBounds2D().intersects(player.shape.getBounds2D())) && (Main.inBounds(player.arrX, player.arrY, food.get(i).pos))){
                     player.energy += food.get(i).energy;
                     food.remove(i);
                 }
             }
             //collisions of bots with bullets
-            for (int i = 0; i< bots.size(); i++){
+            for (int i = 0; i < bots.size(); i++){
                 for (int j = 0;j<bullets.size();j++) {
                     if (Math.sqrt(Math.pow(bots.get(i).pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(bots.get(i).pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
                         bots.get(i).energy -= bullets.get(j).damage;
@@ -167,9 +182,10 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
                 }
             }
             //collisions of player with bullets
-            for (int j = 0;j<bullets.size();j++) {
+            for (int j = 0; j < bullets.size(); j++) {
+                bullets.get(j).update();
                 if (Math.sqrt(Math.pow(player.pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(player.pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
-                    bots.get(j).energy -= bullets.get(j).damage;
+                    player.energy -= bullets.get(j).damage;
                     bullets.remove(j);
                 }
             }
@@ -187,7 +203,7 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
     //@Override
     public void paint(Graphics g){
 
-        paintComponent(g);
+
         Graphics2D g2d = (Graphics2D)g;
 
         Color oldColor = g2d.getColor();
@@ -207,6 +223,11 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
             //g2d.drawString(Integer.toString(i), (int)crystals.get(i).pos.getX(), (int)crystals.get(i).pos.getY());
         }
         //g2d.drawLine(x1, y1, x2, y2);
+
+        for(int i = 0; i < bullets.size(); i++){
+            g2d.setColor(Color.BLACK);
+            g2d.fill(bullets.get(i).shape);
+        }
 
         g2d.setColor(player.color);
         g2d.fill(player.shape);
@@ -231,12 +252,9 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
         g2d.fillRect(-10, height - 44, width + 20, 100);
         g2d.fillRect(0, -10, 5, height + 50);
         g2d.fillRect(width - 24, -10, 50, height + 50);
-        /*for(int i = 0; i < poly.arrX.length; i++){
-            g2d.drawLine(poly.arrX[i], poly.arrY[i], poly.arrX[i], poly.arrY[i]);
-            g2d.drawString(i + "", poly.arrX[i], poly.arrY[i] - 10);
-        }*/
-        //g2d.setColor(Color.RED);
-        //g2d.drawLine((int)poly.leftBottom.getX(), (int)poly.leftBottom.getY(), (int)poly.leftBottom.getX(), (int)poly.leftBottom.getY());
+        g2d.setColor(oldColor);
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER , 1f));
+        paintComponent(g2d);
         timer.start();
     }
 
@@ -253,52 +271,19 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
     @Override
     public void keyTyped(KeyEvent keyEvent) {
 
-        //System.out.print(keyEvent.getKeyCode());
+
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         pressedKeys[e.getKeyCode()] = true;
 
-
-        //System.out.print(e.getKeyCode());
-        /*player.angular_velocity = 0;
-        player.speed = new Vec2d();
-        if(e.getKeyCode() == 81){ //q
-            player.angular_velocity -= 0.01;
-        }
-        if(e.getKeyCode() == 69){ //e
-            player.angular_velocity += 0.01;
-        }
-        if(e.getKeyCode() == 87){ //w
-            player.speed.add(new Vec2d(0, -1));
-        }
-        if(e.getKeyCode() == 83){ //s
-            player.speed.add(new Vec2d(0, 1));
-        }
-        if(e.getKeyCode() == 65){ //a
-            player.speed.add(new Vec2d(-1, 0));
-        }
-        if(e.getKeyCode() == 68){ //d
-            player.speed.add(new Vec2d(1, 0));
-        }
-        if(e.getKeyCode() == 32){ //space
-            //player.shoot();
-        }*/
-
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-            pressedKeys[e.getKeyCode()] = false;
-
-
-
-        //System.out.println("Space = " + Integer.toString(KeyEvent.VK_SPACE));
-        //System.out.print("Key released");
-        //player.angular_velocity = 0; ??????
-        //System.out.print(keyEvent.getKeyCode());
-
+        pressedKeys[e.getKeyCode()] = false;
+        //System.out.println(e.getKeyCode());
     }
 
     @Override
@@ -466,6 +451,19 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
         }
         return -1;
 
+    }
+
+    public static boolean inBounds(double[] arrX, double[] arrY, Vec2d pos){
+        int intersections = 0;
+        for(int i = 1; i < arrX.length; i++){
+            if(Main.intersects(pos, new Vec2d(pos.getX() + 10000, pos.getY()), new Vec2d(arrX[i - 1], arrY[i - 1]), new Vec2d(arrX[i], arrY[i]))){
+                intersections++;
+            }
+        }
+        if(Main.intersects(pos, new Vec2d(pos.getX() + 10000, pos.getY()), new Vec2d(arrX[arrX.length - 1], arrY[arrX.length - 1]), new Vec2d(arrX[0], arrY[0]))){
+            intersections++;
+        }
+        return (intersections % 2 == 1);
     }
 
     public static Ellipse2D.Double getCircle(double x, double y, double r){
