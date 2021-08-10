@@ -10,17 +10,24 @@ public class Bot extends Player{
         this.pos.setY(Math.random()*1000);
     }
     void wander(){
-        speed = new Vec2d((Math.random()*10-5)/100f, (Math.random()*10-5)/100f);
-        double moving_timer = 3;
+        speed = new Vec2d((Math.random()*10-5)/10f, (Math.random()*10-5)/10f);
+        moving_timer = 3;
     }
     // a random food or player is chosen to move towards
     void ai(Player p, Food f){
         if (p.energy > 10){
-            if(p.pos.getX()-this.pos.getX() > 200 || p.pos.getY()-this.pos.getY() > 200){
-                speed = new Vec2d((p.pos.getX()-this.pos.getX())/1000f, (p.pos.getY()-this.pos.getY())/1000f);
+            if(p.pos.getX()-this.pos.getX() > 100 && p.pos.getX()-this.pos.getX() < 400 || p.pos.getY()-this.pos.getY() > 100 && p.pos.getY()-this.pos.getY() < 400){
+                if(moving_timer <= 0) {
+                    speed = new Vec2d((p.pos.getX()-this.pos.getX())/1000f, (p.pos.getY()-this.pos.getY())/1000f);
+                }
             } else {
-                wander();
+                if(moving_timer <= 0) {
+                    wander();
+                }
                 if (Math.random() * 6 > 4) {
+                    for(int i = 0;i<this.shooting_vertexes.size();i++){
+                        shoot(i);
+                    }
                     //shoot((int)Math.random()*n, p);  // shoots the player with a chance of 20%
                 }
             }
@@ -29,12 +36,17 @@ public class Bot extends Player{
             speed.setX(speed.getX()*3);
             speed.setY(speed.getY()*3);
             speed = new Vec2d(f.pos.getX()-this.pos.getX(), f.pos.getY()-this.pos.getY());
+            moving_timer = 6;
         }
         else
         {
             wander();
         }
         super.move();
+    }
+    void move(){
+        super.move();
+        moving_timer = 3;
     }
     void update(){
         super.update();

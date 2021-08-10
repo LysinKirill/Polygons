@@ -196,6 +196,7 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
             //collisions of bots with bullets
             for (int i = 0;i<bots.size();i++){
                 for (int j = 0;j<bullets.size();j++) {
+                    //if((bullets.get(i).shape.getBounds2D().intersects(bots.get(j).shape.getBounds2D())) && (Main.inBounds(bots.get(j).arrX, bots.get(j).arrY, bullets.get(i).pos))){
                     if (Math.sqrt(Math.pow(bots.get(i).pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(bots.get(i).pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
                         bots.get(i).energy -= bullets.get(j).damage;
                         bullets.remove(j);
@@ -211,8 +212,10 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
             }
             //bot AI
             for (int i = 0;i < bots.size();i++){
+                if(bots.get(i).energy <= 0){
+                    bots.remove(i);
+                }
                 bots.get(i).ai(player, food.get((int)(Math.random()*food.size())));
-                //bots.get(i).move();
                 bots.get(i).update();
             }
             //bullets moving
