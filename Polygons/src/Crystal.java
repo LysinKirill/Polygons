@@ -3,7 +3,6 @@ import java.awt.*;
 public class Crystal extends Poly{
     Color color;
     Rectangle collider;
-    int timer = 0;
 
 
 

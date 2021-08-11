@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import java.awt.geom.Ellipse2D;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -112,13 +113,13 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
 
         while(true){    //    game cycle
             gameObjects.get(0).annotation = Integer.toString((int)Math.round(player.energy));
-            for (int i = 0;i < bots.size();i++){
-                if(bots.get(i).energy <= 0) {
-                    bots.remove(i);
-                }
-            }
+//            for (int i = 0;i < bots.size();i++){
+//                if(bots.get(i).energy <= 0) {
+//                    bots.remove(i);
+//                }
+//            }
             if(player.energy <= 0) {
-                System.out.println("Лох");
+                // end of game
             }
             if(pressedKeys[32]){ // space pressed
                 if(player.shooting_timer <= 0){
@@ -175,17 +176,6 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
                 //bots.add(new Bot(new Vec2d(Math.random()*1500, Math.random()*1000), (int)Math.random()*50, new Vec2d(Math.random()*2, Math.random()*2), Math.random()*0.5, 20, Color.BLUE));
                 bots.add(new Bot());
             }
-//            for(int i = 0; i < bots.size(); i++){
-//                //System.out.println("Crystal #" + i + ":   "+ crystals.get(i).pos + "   speed = " + crystals.get(i).speed);
-//                bots.get(i).move();
-//                bots.get(i).rotate();
-//                bots.get(i).update();
-//                if(bots.get(i).isOutOfBounds()){bots.get(i).timer++;}else{bots.get(i).timer = 0;}
-//                if((bots.get(i).timer / 60) > 5){
-//                    bots.remove(i);
-//                    //System.out.println("removed " + i +"  crystal");
-//                }
-//            }
             //collisions with food
             for (int i = 0; i < food.size(); i++){
                 if((food.get(i).shape.getBounds2D().intersects(player.shape.getBounds2D())) && (Main.inBounds(player.arrX, player.arrY, food.get(i).pos))){
@@ -194,18 +184,19 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
                 }
             }
             //collisions of bots with bullets
-            for (int i = 0;i<bots.size();i++){
-                for (int j = 0;j<bullets.size();j++) {
-                    //if((bullets.get(i).shape.getBounds2D().intersects(bots.get(j).shape.getBounds2D())) && (Main.inBounds(bots.get(j).arrX, bots.get(j).arrY, bullets.get(i).pos))){
-                    if (Math.sqrt(Math.pow(bots.get(i).pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(bots.get(i).pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
+            for (int i = 0; i < bots.size(); i++){
+                for (int j = 0; j < bullets.size(); j++) {
+                    if ((bots.get(i).shape.getBounds2D().intersects(bullets.get(j).shape.getBounds2D())) && (Main.inBounds(bots.get(i).arrX, bots.get(i).arrY, bullets.get(j).pos))) {
                         bots.get(i).energy -= bullets.get(j).damage;
+                        //bots.get(i).color = Color.RED;
                         bullets.remove(j);
                     }
                 }
             }
             //collisions of player with bullets
-            for (int j = 0;j<bullets.size();j++) {
-                if (Math.sqrt(Math.pow(player.pos.getX() - bullets.get(j).pos.getX(), 2) + Math.pow(player.pos.getY() - bullets.get(j).pos.getY(), 2)) <= bullets.get(j).damage * 10) {
+            for (int j = 0; j < bullets.size(); j++) {
+                bullets.get(j).update();
+                if ((bullets.get(j).shape.getBounds2D().intersects(player.shape.getBounds2D())) && (Main.inBounds(player.arrX, player.arrY, bullets.get(j).pos))) {
                     player.energy -= bullets.get(j).damage;
                     bullets.remove(j);
                 }
@@ -213,17 +204,32 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
             //bot AI
             for (int i = 0;i < bots.size();i++){
                 if(bots.get(i).energy <= 0){
+                    for(int k = 0;k<Math.random()*6;k++){
+                        food.add(new Food(0.1*Math.random()*15+0.5, new Vec2d(bots.get(i).pos.getX() + Math.random()*50, bots.get(i).pos.getY() + Math.random()*50)));
+                    }
                     bots.remove(i);
+                    continue;
                 }
-                bots.get(i).ai(player, food.get((int)(Math.random()*food.size())));
+                //bots.get(i).ai(player, food.get((int)(Math.random()*food.size())));
+
+
+                if(bots.get(i).get_range_to_player(player.pos.getX(), player.pos.getY()) <= 400 && bots.get(i).get_range_to_player(player.pos.getX(), player.pos.getY()) >= 100){
+                    bots.get(i).follow(player); // режим преследования игрока
+                } else {
+                    bots.get(i).wander(); // режим блуждания
+                }
+                if (Math.random() * 100 + bots.get(i).get_range_to_player(player.pos.getX(), player.pos.getY())/300f > 95) {
+                    for(int f = 0;f<bots.get(i).shooting_vertexes.size();f++){
+                        bullets.add(bots.get(i).shoot(f));
+                    }
+                }
+                bots.get(i).move();
                 bots.get(i).update();
             }
             //bullets moving
             for (int i = 0;i<bullets.size();i++){
                 bullets.get(i).move();
                 bullets.get(i).update();
-//                System.out.println(bullets.get(i).pos.getY());
-//                System.out.println(bullets.get(i).pos.getX());
 
             }
             //player moving
@@ -502,5 +508,8 @@ public class Main extends JComponent implements KeyListener, ActionListener, Mou
             intersections++;
         }
         return (intersections % 2 == 1);
+    }
+    public static Ellipse2D.Double getCircle(double x, double y, double r){
+        return new Ellipse2D.Double(x - r, y - r, 2*r, 2*r);
     }
 }

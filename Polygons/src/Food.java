@@ -9,11 +9,13 @@ public class Food {
     Food(){
         this.energy = 1;
         this.pos = new Vec2d(Math.random()*Main.width, Math.random()*Main.height);
-        this.shape = new Ellipse2D.Double(pos.getX() - energy*15/2, pos.getY() - energy*15/2, energy*15, energy*15);
+        this.shape = Main.getCircle(pos.getX(), pos.getY(), energy*15 * (Main.width / 2560f));
+        //this.shape = new Ellipse2D.Double(pos.getX() - energy*15/2, pos.getY() - energy*15/2, energy*30, energy*30);
     }
     Food(double energy, Vec2d pos){
         this.energy = energy;
         this.pos = pos;
-        this.shape = new Ellipse2D.Double(pos.getX() - energy*15, pos.getY() - energy*15, energy*15, energy*15);
+        this.shape = Main.getCircle(pos.getX(), pos.getY(), energy*15 * (Main.width / 2560f));
+        //this.shape = new Ellipse2D.Double(pos.getX() - energy*15, pos.getY() - energy*15, energy*30, energy*30);
     }
 }

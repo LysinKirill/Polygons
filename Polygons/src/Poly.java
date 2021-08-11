@@ -281,13 +281,13 @@ public class Poly {
             arrY[i] = pos.getY() + (arrY[i] - pos.getY()) * sc;
         }
     }
-    void setPos(){
-        for (int i = 0;i<n;i++) {
-            this.pos.setX(this.arrX[i]+this.pos.getX());
-            this.pos.setY(this.arrY[i]+this.pos.getY());
-        }
-        this.pos.setX(this.pos.getX()/n);
-        this.pos.setY(this.pos.getY()/n);
-    }
+//    void setPos(){
+//        for (int i = 0;i<n;i++) {
+//            this.pos.setX(this.arrX[i]+this.pos.getX());
+//            this.pos.setY(this.arrY[i]+this.pos.getY());
+//        }
+//        this.pos.setX(this.pos.getX()/n);
+//        this.pos.setY(this.pos.getY()/n);
+//    }
 
 }

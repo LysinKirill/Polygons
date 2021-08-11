@@ -5,7 +5,7 @@ public class Player extends Crystal {
     double energy = 20;
     ArrayList<Integer> shooting_vertexes = new ArrayList<>();
     double shooting_timer = 0;
-    double delay = 2;
+    double delay = 1;
     double bulletSpeedAmplifier = 5;
     double maxSpeed = 4;
     double acceleration = 0.2;
@@ -79,7 +79,6 @@ public class Player extends Crystal {
     void update(){
         super.update();
         shooting_timer -= (1/60f);
-        setPos();
     }
     void decelerate(double x, double y, double angle){
         this.speed.setX(speed.getX() * x);
