@@ -116,6 +116,7 @@ public class Poly {
         this.arrX = arrX;
         this.arrY = arrY;
         this.shape = new Polygon(tempX, tempY, vertexes.size());
+
         this.leftBottom = left_bottom;
         this.n = vertexes.size();
         this.pos = new Vec2d(position.getX(), position.getY());

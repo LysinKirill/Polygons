@@ -13,6 +13,7 @@ public class Food {
     Food(double energy, Vec2d pos){
         this.energy = energy;
         this.pos = pos;
-        this.shape = new Ellipse2D.Double(pos.getX() - energy*15, pos.getY() - energy*15, energy*15, energy*15);
+        this.shape = Main.getCircle(pos.getX(), pos.getY(), energy*15 * (Main.width / 2560f));
+        //this.shape = new Ellipse2D.Double(pos.getX() - energy*15, pos.getY() - energy*15, energy*30, energy*30);
     }
 }
